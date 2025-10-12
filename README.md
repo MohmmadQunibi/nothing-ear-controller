@@ -21,6 +21,17 @@ This extension builds upon the excellent work of [Bharadwaj Raju](https://bharad
    ```bash
    gnome-extensions install nothing-ear-controller@LuanAdemi.zip
 
+3. Open your Bluetooth settings and copy the device ID (Bluetooth address) of your Nothing Ear earphones.
+4. Edit the extension configuration file by opening:
+
+   ```bash
+   nano ~/.local/share/gnome-shell/extensions/nothing-ear-controller@LuanAdemi/controller.py
+   ```
+
+   Then replace the `DEVICE_ADDR` value with your earphones' Bluetooth address.
+5. Relog into GNOME
+
+
 ## Usage
 1. Pair your Nothing Ear earphones with your Linux system via Bluetooth.  
 2. Open the GNOME extensions menu and enable **Nothing Ear Controller**.  
