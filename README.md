@@ -37,7 +37,8 @@ This extension builds upon the excellent work of [Bharadwaj Raju](https://bharad
 2. Open the GNOME extensions menu and enable **Nothing Ear Controller**.  
 3. Control ANC modes and check battery status directly from your panel.
 
-## Tested On:
+## Tested On
+- Fedora 42
 - Nothing Ear (third generation, not to be confused with the Nothing Ear 3)
 
 ## Credits
