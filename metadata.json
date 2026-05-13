@@ -3,6 +3,6 @@
   "name": "Nothing Ear Controller",
   "description": "Control ANC modes of Nothing Ear (1/2) headphones",
   "version": 1,
-  "shell-version": ["49", "48", "47", "46", "45"],
+  "shell-version": ["50","49", "48", "47", "46", "45"],
   "url": "https://github.com/LuanAdemi/nothing-ear-controller"
 }

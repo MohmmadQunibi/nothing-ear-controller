@@ -9,6 +9,7 @@ from enum import Enum, IntEnum
 import logging
 import subprocess
 import sys
+import time
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -41,8 +42,13 @@ def send_rfcomm(command: COMMANDS):
     sock = socket.socket(socket.AF_BLUETOOTH, socket.SOCK_STREAM, socket.BTPROTO_RFCOMM)
     try:
         sock.connect((DEVICE_ADDR, RFCOMM_CHANNEL))
-        sock.send(cmd)
+        sock.sendall(cmd)
         logger.info(f"✅ Sent command: {command.name}")
+        time.sleep(0.3)
+        try:
+            sock.shutdown(socket.SHUT_RDWR)
+        except OSError:
+            pass
     except OSError as e:
         logger.error(f"❌ Bluetooth error: {e}")
     finally:
