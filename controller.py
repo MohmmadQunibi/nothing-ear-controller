@@ -14,9 +14,34 @@ import time
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Bluetooth address of your Nothing Ear device
-DEVICE_ADDR = "3C:B0:ED:F0:BC:2F"
+# Force a specific Bluetooth address here, or leave as None to auto-detect
+# the first paired device whose name contains "Nothing Ear".
+DEVICE_ADDR_OVERRIDE = None
 RFCOMM_CHANNEL = 15  # As discovered in the blog post
+
+
+def detect_device_addr():
+    """Return the MAC of a paired Nothing Ear device, or None if not found."""
+    if DEVICE_ADDR_OVERRIDE:
+        return DEVICE_ADDR_OVERRIDE
+    try:
+        result = subprocess.run(
+            ["bluetoothctl", "devices"],
+            capture_output=True, text=True, timeout=5,
+        )
+        for line in result.stdout.splitlines():
+            # Format: "Device AA:BB:CC:DD:EE:FF Ear (2)" (Nothing Ear devices
+            # advertise as "Ear (2)", "Ear (3)", "Nothing Ear", etc.)
+            parts = line.split(maxsplit=2)
+            if len(parts) >= 3 and parts[0] == "Device" and "ear" in parts[2].lower():
+                return parts[1]
+    except (subprocess.TimeoutExpired, FileNotFoundError, Exception) as e:
+        logger.error(f"Could not auto-detect Nothing Ear device: {e}")
+    return None
+
+
+# Resolved at startup: an explicit --device argument, else auto-detection.
+DEVICE_ADDR = None
 
 class COMMANDS(Enum):
     """Control command payloads for Nothing Ear over RFCOMM"""
@@ -36,6 +61,9 @@ class COMMANDS(Enum):
 
 def send_rfcomm(command: COMMANDS):
     """Send a command via Bluetooth RFCOMM to the device"""
+    if not DEVICE_ADDR:
+        logger.error("No Nothing Ear device found")
+        return
     cmd = command.value
     logger.info(f"Connecting to {DEVICE_ADDR} on RFCOMM channel {RFCOMM_CHANNEL}...")
 
@@ -82,6 +110,9 @@ def set_anc_mode(mode: ANCMode):
 
 def send_and_receive(cmd: bytes) -> bytes:
     """Send a command and read up to 32 bytes of response."""
+    if not DEVICE_ADDR:
+        logger.error("No Nothing Ear device found")
+        return b""
     sock = socket.socket(socket.AF_BLUETOOTH, socket.SOCK_STREAM, socket.BTPROTO_RFCOMM)
     sock.connect((DEVICE_ADDR, RFCOMM_CHANNEL))
     sock.send(cmd)
@@ -144,8 +175,12 @@ if __name__ == "__main__":
     parser.add_argument("--set", choices=[m.name.upper() for m in ANCMode] + [m.name.lower() for m in ANCMode], help="Set ANC mode")
     parser.add_argument("--get", action="store_true", help="Query current ANC mode")
     parser.add_argument("--battery", action="store_true", help="Get battery level")
+    parser.add_argument("--mac", action="store_true", help="Print the configured device MAC address")
+    parser.add_argument("--device", metavar="MAC", help="Use this device MAC instead of auto-detecting")
 
     args = parser.parse_args()
+
+    DEVICE_ADDR = args.device if args.device else detect_device_addr()
 
     if args.set:
         mode = ANCMode[args.set.upper()]
@@ -165,6 +200,10 @@ if __name__ == "__main__":
             print(battery)
         else:
             print("UNKNOWN")
+        sys.exit(0)
+    elif args.mac:
+        if DEVICE_ADDR:
+            print(DEVICE_ADDR)
         sys.exit(0)
     else:
         parser.print_help()

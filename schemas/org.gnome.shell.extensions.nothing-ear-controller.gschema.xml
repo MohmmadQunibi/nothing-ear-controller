@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <enum id="org.gnome.shell.extensions.nothing-ear-controller.placement">
+    <value nick="quick-settings" value="0"/>
+    <value nick="top-bar" value="1"/>
+    <value nick="both" value="2"/>
+  </enum>
+  <schema id="org.gnome.shell.extensions.nothing-ear-controller"
+          path="/org/gnome/shell/extensions/nothing-ear-controller/">
+    <key name="placement" enum="org.gnome.shell.extensions.nothing-ear-controller.placement">
+      <default>'quick-settings'</default>
+      <summary>Widget placement</summary>
+      <description>Where the controller appears: Quick Settings, the top bar, or both.</description>
+    </key>
+    <key name="show-mode" type="b">
+      <default>false</default>
+      <summary>Show ANC mode on the top-bar button</summary>
+      <description>Display the current ANC mode label next to the icon on the top-bar button.</description>
+    </key>
+    <key name="show-battery" type="b">
+      <default>false</default>
+      <summary>Show battery percentage on the top-bar button</summary>
+      <description>Display the battery percentage next to the icon on the top-bar button.</description>
+    </key>
+    <key name="device-mac" type="s">
+      <default>''</default>
+      <summary>Bluetooth MAC of the earphones</summary>
+      <description>MAC address of the device to control. Empty means auto-detect the first paired device whose name contains "ear".</description>
+    </key>
+  </schema>
+</schemalist>
